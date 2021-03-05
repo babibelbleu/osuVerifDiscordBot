@@ -156,7 +156,7 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
                     # On supprime les messages dans #welcome et #mod-newbies
                     await bot.http.delete_message(welcome_channel_id, welcome_msg_id)
                     await bot.http.delete_message(channel,m_id)
-                    await member.send("Désolé, l'équipe de modération n'a pas accepté votre profil...")
+                    await member.send("Désolé, l'équipe de modération n'a pas accepté votre profil...\n Veuillez quitter le serveur discord. Pour toute réclamation, veuillez contacter un modérateur.")
 
 
 @bot.event
