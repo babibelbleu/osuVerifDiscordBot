@@ -1,0 +1,44 @@
+[05/03/2021] Version 1.1 :
+    Arrangement de code:
+        - Ajout d'une docstring pour chaque fonction/evênement
+
+        - Suppression d'une donnée inutile dans new_members:
+            - Le None indiquait déjà si l'utilisateur avait posté un message dans #welcome
+
+        - Suppression de blocs "try...except" inutiles et ajout de blocs "try...except" utiles
+
+        - Le programme affiche maintenant en console la ligne où l'erreur se produit
+
+        - Certains ID de channel discord étaient mis "bruts", ils sont maintenant dans le .env
+
+        - Suppression de on_raw_reaction_remove qui n'avait aucune utilité
+
+        - Suppression de quelques print inutiles
+
+
+    Nouveautés:
+        - Ran peut maintenant répondre quand on le ping:
+            - 8 réponses proposées, choix aléatoire
+
+        - Ran a un nouveau statut : "Participant à : Pourriez-vous stp :nyab:"
+
+        - Ajout de 2 nouvelles commandes à utiliser dans #mod-newbies:
+            - !rename <discord_id> <new_nick> (chevrons à ne pas écrire) --> va rename le membre avec new_nick:
+                - Le discord_id permet de récupérer le membre afin de l'éditer, je travaille sur une commande plus facile
+
+            - !bug <message> (chevrons à ne pas écrire) --> Envoie un message privé au développeur du bot (Babibel#2811) en indiquant qu'il y a un bug
+                - <message> permet de décrire la situation au développeur (facultatif mais plus apprecié)
+
+                - Le modérateur pourra directement répondre en faisant un !answer -name -message (traits d'union à écrire):
+                    - -name est l'utilisateur qui va être ping de la réponse
+                    - -message est la réponse apportée par le développeur
+
+
+    Corrections:
+        - Suppression d'un bug qui ajoutait "❓" si l'url osu! n'était pas indiquée en premier mot
+
+        - Suppression d'un bug qui faisait que le bot ne comprenait pas les url commençant par "https://osu.ppy.sh/u/"
+
+        - Les channels à vérifier dans on_message se font maintenant par ID et non par nom, cela entrainait des erreurs
+
+        - Le membre dans new_members est maintenant supprimé lorsqu'il passe au stade "en attente"
