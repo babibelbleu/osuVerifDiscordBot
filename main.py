@@ -25,6 +25,7 @@ bot_token = os.getenv("bot_token")
 guild_id = int(os.getenv("UID_guild"))
 welcome_id = int(os.getenv("UID_welcome"))
 mod_newbies_id = int(os.getenv("UID_mod-newbies"))
+general_id = int(os.getenv("UID_general"))
 osu_client = pyosu.OsuApi(os.getenv("osu_token"))
 babibel_id = int(os.getenv("babibel_id")) # ID du développeur du bot
 
@@ -108,55 +109,62 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     emote = payload.emoji.name
     reaction_add_member:discord.Member = bot.get_guild(payload.guild_id).get_member(payload.user_id)
 
-    if channel == mod_newbies_id:
-        if emote == "✅":
-            for d_id,o_id,m_id,welcome_m_id,r_p in waiting_state_members.values(): # On récupère chaque valeur de chaque membre "en attente"
-                if m_id == message_id: # Si le message dont on a mis ✅ correspond au embed du dit-membre
+    try:
+        if channel == mod_newbies_id:
+            if emote == "✅":
+                for d_id,o_id,m_id,welcome_m_id,r_p in waiting_state_members.values(): # On récupère chaque valeur de chaque membre "en attente"
+                    if m_id == message_id: # Si le message dont on a mis ✅ correspond au embed du dit-membre
 
-                    # On déclare toutes les variables dont on a besoin
-                    member: discord.Member = bot.get_guild(payload.guild_id).get_member(d_id) # On récupère le membre discord
-                    discord_user: discord.User = bot.get_user(member.id)                      # On récupère l'utilisateur discord
-                                                                                              # (à ne pas confondre avec Member qui comporte d'autres méthodes que User)
+                        # On déclare toutes les variables dont on a besoin
+                        member: discord.Member = bot.get_guild(payload.guild_id).get_member(d_id) # On récupère le membre discord
+                        discord_user: discord.User = bot.get_user(member.id)                      # On récupère l'utilisateur discord
+                                                                                                  # (à ne pas confondre avec Member qui comporte d'autres méthodes que User)
 
-                    role = get(bot.get_guild(payload.guild_id).roles, name="testrole")        # On récupère le rôle à ajouter
-                    member_full_name = f"{discord_user.name}#{discord_user.discriminator}"    # On récupère le nom#tag discord du membre
+                        role = get(bot.get_guild(payload.guild_id).roles, name="testrole")        # On récupère le rôle à ajouter
+                        member_full_name = f"{discord_user.name}#{discord_user.discriminator}"    # On récupère le nom#tag discord du membre
 
-                    osu_user: pyosu.models.User = await osu_client.get_user(                  # On récupère l'utilisateur osu! grâce à l'ID
-                        waiting_state_members[member_full_name][1])                           # stocké dans waiting_state_members
+                        osu_user: pyosu.models.User = await osu_client.get_user(                  # On récupère l'utilisateur osu! grâce à l'ID
+                            waiting_state_members[member_full_name][1])                           # stocké dans waiting_state_members
 
-                    new_nick = osu_user.username                                              # On récupère le nom d'utilisateur osu!
-                    welcome_msg_id = waiting_state_members[member_full_name][3]               # On récupère l'ID du message envoyé dans #welcome
-                    newbies_channel = bot.get_channel(mod_newbies_id)                         # On récupère le channel mod-newbies
+                        new_nick = osu_user.username                                              # On récupère le nom d'utilisateur osu!
+                        welcome_msg_id = waiting_state_members[member_full_name][3]               # On récupère l'ID du message envoyé dans #welcome
+                        newbies_channel = bot.get_channel(mod_newbies_id)                         # On récupère le channel mod-newbies
 
-                    # Déclaration du message à envoyer dans mod-newbies
-                    newbies_embed = discord.Embed(description=f"{discord_user.name} a été accepté grâce à {reaction_add_member.display_name} !")
+                        #On ajoute le rôle au membre + on supprime les messages dans #welcome et #mod-newbies
+                        await member.add_roles(role)
+                        await bot.http.delete_message(channel, m_id)
+                        await bot.http.delete_message(welcome_id,welcome_msg_id)
+                        general_channel = bot.get_channel(general_id)
 
-                    #On ajoute le rôle au membre + on supprime les messages dans #welcome et #mod-newbies
-                    await member.add_roles(role)
-                    await bot.http.delete_message(channel, m_id)
-                    await bot.http.delete_message(welcome_id,welcome_msg_id)
+                        # On envoie le embed préparé et on modifie le pseudo du nouvel utilisateur
+                        await member.edit(nick=new_nick)
 
-                    # On envoie le embed préparé et on modifie le pseudo du nouvel utilisateur
-                    await newbies_channel.send(embed=newbies_embed)
-                    await member.edit(nick=new_nick)
-                    await member.send("Vous avez été accepté sur le serveur !")
-        elif emote == "❌":
-            for d_id,o_id,m_id,welcome_m_id,r_p in waiting_state_members.values(): # On récupère chaque valeur de chaque membre "en attente"
-                if m_id == message_id: # # Si le message dont on a mis ❌ correspond au embed du dit-membre
+                        newbies_embed = discord.Embed(description=f"{member.nick} a été accepté grâce à {reaction_add_member.display_name} !")
 
-                    # On déclare toutes les variables dont on a besoin
-                    member: discord.Member = bot.get_guild(payload.guild_id).get_member(d_id) # On récupère le membre discord
-                    discord_user: discord.User = bot.get_user(member.id)                      # On récupère l'utilisateur discord
-                                                                                              # (à ne pas confondre avec Member qui comporte d'autres méthodes que User)
+                        await newbies_channel.send(embed=newbies_embed)
+                        await member.send("Vous avez été accepté sur le serveur !")
+                        await general_channel.send(f"Bienvenue à {member.mention} ! :honk:")
+                        del waiting_state_members[member_full_name]
+            elif emote == "❌":
+                for d_id,o_id,m_id,welcome_m_id,r_p in waiting_state_members.values(): # On récupère chaque valeur de chaque membre "en attente"
+                    if m_id == message_id: # # Si le message dont on a mis ❌ correspond au embed du dit-membre
 
-                    member_full_name = f"{discord_user.name}#{discord_user.discriminator}"    # On récupère le nom#tag discord du membre
-                    welcome_channel_id = welcome_id                                           # On récupère le channel welcome
-                    welcome_msg_id = waiting_state_members[member_full_name][3]               # On récupère l'ID du message du membre dans #welcome
+                        # On déclare toutes les variables dont on a besoin
+                        member: discord.Member = bot.get_guild(payload.guild_id).get_member(d_id) # On récupère le membre discord
+                        discord_user: discord.User = bot.get_user(member.id)                      # On récupère l'utilisateur discord
+                                                                                                  # (à ne pas confondre avec Member qui comporte d'autres méthodes que User)
 
-                    # On supprime les messages dans #welcome et #mod-newbies
-                    await bot.http.delete_message(welcome_channel_id, welcome_msg_id)
-                    await bot.http.delete_message(channel,m_id)
-                    await member.send("Désolé, l'équipe de modération n'a pas accepté votre profil...\n Veuillez quitter le serveur discord. Pour toute réclamation, veuillez contacter un modérateur.")
+                        member_full_name = f"{discord_user.name}#{discord_user.discriminator}"    # On récupère le nom#tag discord du membre
+                        welcome_channel_id = welcome_id                                           # On récupère le channel welcome
+                        welcome_msg_id = waiting_state_members[member_full_name][3]               # On récupère l'ID du message du membre dans #welcome
+
+                        # On supprime les messages dans #welcome et #mod-newbies
+                        await bot.http.delete_message(welcome_channel_id, welcome_msg_id)
+                        await bot.http.delete_message(channel,m_id)
+                        await member.send("Désolé, l'équipe de modération n'a pas accepté votre profil...\n Veuillez quitter le serveur discord. Pour toute réclamation, veuillez contacter un modérateur.")
+                        del waiting_state_members[member_full_name]
+    except Exception as e:
+        print(e.__traceback__.tb_lineno)
 
 
 @bot.event
@@ -312,10 +320,11 @@ async def rich_presence_validation(discord_user:discord.User):
                 # Déclaration des variables à utiliser
                 verificateur = True
                 new_nick = activity.assets['large_text'].split()             # On récupère le pseudo indiqué dans le rich presence osu!
-                role = get(bot.get_guild(guild_id).roles, name="membre")     # Rôle à ajouter au membre
+                role = get(bot.get_guild(guild_id).roles, name="testrole")     # Rôle à ajouter au membre
                 newbies_channel = bot.get_channel(mod_newbies_id)            # On récupère le channel mod-newbies pour envoyer l'embed
                 msg_id = waiting_state_members[discord_user_name][2]         # On récupère l'ID du message du bot associé à l'utilisateur dans #mod-newbies
                 welcome_msg_id = waiting_state_members[discord_user_name][3] # On récupère l'ID du message posté dans #welcome
+                general_channel = bot.get_channel(general_id)
 
                 # Editer les informations du membre
                 await member.edit(nick=new_nick[0])
@@ -323,6 +332,7 @@ async def rich_presence_validation(discord_user:discord.User):
 
                 del waiting_state_members[discord_user_name] # ça ne sert à rien de garder l'utilisateur dans waiting_state_members
                 await member.send("**Vous avez été accepté sur le serveur!** Merci de votre patience!")
+                await general_channel.send(f"Bienvenue à {member.mention} ! :honk:")
                 await bot.http.delete_message(mod_newbies_id,msg_id)
                 await bot.http.delete_message(welcome_id, welcome_msg_id)
                 newbies_embed = discord.Embed(description=f"{discord_user_name} a été accepté via Rich Presence !",

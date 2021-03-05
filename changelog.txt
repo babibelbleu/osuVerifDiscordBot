@@ -17,6 +17,9 @@
 
 
     Nouveautés:
+        - Ran souhaite la bienvenue aux nouveaux arrivants:
+            - Cela permet aux personnes ayant activé avec Rich Presence d'avoir un message de bienvenue
+        
         - Ran peut maintenant répondre quand on le ping:
             - 8 réponses proposées, choix aléatoire
 
