@@ -16,7 +16,7 @@ import random                  # Pour les phrases du bot choisies aléatoirement
 # On charge notre .env
 load_dotenv()
 
-# Déclaration du bot + ses intents (obligatoires pour le rich presence)
+# Déclaration du bot + ses intents
 default_intents = discord.Intents.all()
 bot = discord.Client(intents=default_intents)
 
@@ -80,17 +80,6 @@ async def on_member_join(member:discord.Member):
                     value="Envoyez le lien de votre profil osu! Il ressemble à ça : `https://osu.ppy.sh/users/123456`",
                     inline=True)
 
-    embed.add_field(name="__*Optionel*__: Laissez votre osu! ouvert",
-                    value="Si vous avez activé l'option *Discord Rich Presence* sur osu! , "
-                          "nous vous invitons à laisser votre jeu osu! ouvert le temps de la vérification.\n",
-                    inline=False)
-
-    embed.add_field(name="__Vous ne savez pas comment faire pour l'activer ? Suivez mes instructions (2 min.):__",
-                    value="1°Sur le menu principal osu!, allez dans `options`\n"
-                          "2°Puis allez dans `Internet`\n"
-                          "3°Dans `intégrations` cochez la case `Discord Rich Presence`",
-                    inline=False)
-
     new_members[member.id] = [None] # None  -> L'id osu! de l'utilisateur n'a pas été mis
     await member.send(embed=embed)
 
@@ -147,7 +136,7 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
                         del waiting_state_members[member_full_name]
             elif emote == "❌":
                 for d_id,o_id,m_id,welcome_m_id,r_p in waiting_state_members.values(): # On récupère chaque valeur de chaque membre "en attente"
-                    if m_id == message_id: # # Si le message dont on a mis ❌ correspond au embed du dit-membre
+                    if m_id == message_id: # Si le message dont on a mis ❌ correspond au embed du dit-membre dans mod-newbies
 
                         # On déclare toutes les variables dont on a besoin
                         member: discord.Member = bot.get_guild(payload.guild_id).get_member(d_id) # On récupère le membre discord
@@ -254,28 +243,6 @@ async def on_message(message:discord.Message):
         print(e.__traceback__.tb_lineno)
 
 
-@bot.event
-async def on_member_update(before:discord.Member,after:discord.Member):
-    """
-    Evênement qui se déclenche quand un membre change de statut.
-    Cela va nous permettre de récupérer son pseudo osu! via le rich presence.
-
-    :param before: discord.Member -> L'ancien statut du membre (on ne l'utilisera pas ici)
-    :param after:  discord.Member -> Le nouveau statut du membre
-    """
-
-    # On récupère l'utilisateur puis son tag
-    discord_user:discord.User = bot.get_user(after.id)
-    member_full_name = f"{discord_user.name}#{discord_user.discriminator}"
-    try:
-        for key in waiting_state_members.keys(): # On regarde toutes les clés de waiting_state_members
-            if key == member_full_name: # On vérifie que la clé à pour valeur le tag discord du membre ayant changé de statut
-                await rich_presence_validation(discord_user) # On exéute rich_presence_validation
-    except Exception as e:
-        print(e.__traceback__.tb_lineno)
-
-
-
 async def is_osu_user_account_exists(discord_id, osu_id):
     """
     Fonction qui vérifie que le lien posté dans #welcome est bien valide.
@@ -301,51 +268,19 @@ async def is_osu_user_account_exists(discord_id, osu_id):
     else:
         pass
 
+
 async def rich_presence_validation(discord_user:discord.User):
     """
-    Fonction qui accepte le membre grâce à son rich presence (si activé).
+    Fonction qui envoie un message (embed) pour demander aux modérateurs de valider l'utilisateur ou non
 
     :param discord_user: discord.User -> L'utilisateur discord et ses caractéristiques
     """
 
     # Déclaration des variables à utiliser partout
     discord_user_name = f"{discord_user.name}#{discord_user.discriminator}"
-    member:discord.Member = bot.get_guild(guild_id).get_member(waiting_state_members[discord_user_name][0])
-    verificateur = False # Indique si la vérification par rich presence a été effectuée ou non
 
-    for activity in member.activities:
-        try:
-            if activity.application_id == 367827983903490050: # "367827..." est l'ID associé au jeu osu!
-
-                # Déclaration des variables à utiliser
-                verificateur = True
-                new_nick = activity.assets['large_text'].split()             # On récupère le pseudo indiqué dans le rich presence osu!
-                role = get(bot.get_guild(guild_id).roles, name="testrole")     # Rôle à ajouter au membre
-                newbies_channel = bot.get_channel(mod_newbies_id)            # On récupère le channel mod-newbies pour envoyer l'embed
-                msg_id = waiting_state_members[discord_user_name][2]         # On récupère l'ID du message du bot associé à l'utilisateur dans #mod-newbies
-                welcome_msg_id = waiting_state_members[discord_user_name][3] # On récupère l'ID du message posté dans #welcome
-                general_channel = bot.get_channel(general_id)
-
-                # Editer les informations du membre
-                await member.edit(nick=new_nick[0])
-                await member.add_roles(role)
-
-                del waiting_state_members[discord_user_name] # ça ne sert à rien de garder l'utilisateur dans waiting_state_members
-                await member.send("**Vous avez été accepté sur le serveur!** Merci de votre patience!")
-                await general_channel.send(f"Bienvenue à {member.mention} ! :honk:")
-                await bot.http.delete_message(mod_newbies_id,msg_id)
-                await bot.http.delete_message(welcome_id, welcome_msg_id)
-                newbies_embed = discord.Embed(description=f"{discord_user_name} a été accepté via Rich Presence !",
-                                                color=discord.Color.dark_teal())
-                newbies_embed.set_footer(text="La technologie c'est vraiment cool")
-                await newbies_channel.send(embed=newbies_embed)
-            else:
-                verificateur = False # Je savais pas quoi mettre dans ce Else
-        except Exception as e:
-            print(e.__traceback__.tb_lineno)
     try:
-        if not verificateur and waiting_state_members[discord_user_name][2] is None: # Si la vérification rich presence n'a pas été effectuée
-                                                                                     # ET que le bot n'a pas encore posté de message dans #mod-newbies
+        if waiting_state_members[discord_user_name][2] is None: # Si le bot n'a pas encore posté l'embed dans mod-newbies
 
             osu_user: pyosu.models.User = await osu_client.get_user(waiting_state_members[discord_user_name][1])
 
