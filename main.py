@@ -273,6 +273,8 @@ async def rich_presence_validation(discord_user:discord.User):
     """
     Fonction qui envoie un message (embed) pour demander aux modérateurs de valider l'utilisateur ou non
 
+    NE FONCTIONNE PAS SUR LE CHANNEL D'ACCUEIL (celui qui envoie un message dès qu'un nouveau membre arrive
+
     :param discord_user: discord.User -> L'utilisateur discord et ses caractéristiques
     """
 
