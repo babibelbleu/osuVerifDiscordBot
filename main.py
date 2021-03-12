@@ -12,6 +12,7 @@ import pyosu                   # Osu!API
 import discord
 from discord.utils import get  # Permet d'utiliser la méthode get() de discord.utils
 import random                  # Pour les phrases du bot choisies aléatoirement
+import re                      # Pour gérer les regex
 
 # On charge notre .env
 load_dotenv()
@@ -28,6 +29,7 @@ mod_newbies_id = int(os.getenv("UID_mod-newbies"))
 general_id = int(os.getenv("UID_general"))
 osu_client = pyosu.OsuApi(os.getenv("osu_token"))
 babibel_id = int(os.getenv("babibel_id")) # ID du développeur du bot
+ran_ping_id = str(os.getenv("ran_mention_id")) # le message quand on ping le bot (spécifique)
 
 # Dictionnaires pour stocker les informations de chaque nouveau membre
 new_members = {}
@@ -166,27 +168,17 @@ async def on_message(message:discord.Message):
     try:
         if message.channel.id == welcome_id: # On vérifie si le message envoyé est dans le salon welcome
 
-            """
-            Algo pour trouver l'url osu! et le stocker:
-            
-            1°On sépare chaque mot qu'on met dans une liste (message_list)
-            2°Pour chaque elément de la liste on regarde si il commence par https://osu.ppy.sh/users/ (ou ..../u/)
-            3a°Si 2° est vérifié, alors on resépare chaque portion de l'url dans url_list avec le séparateur "/", pour nous permettre de stocker l'ID osu! en dernière partie
-            3b°Si 2° n'est pas vérifié alors on ajoute "?" en réaction au message
-            4°On récupère le dernier elément de url_list, qui est donc l'ID osu! du joueur et on le stocke dans new_members à l'endroit du joueur
-            5°On exécute la fonction is_osu_user_account_exists (voir plus bas)
-            """
-            message_list = message.content.split()
-
             is_verified = False
-            for element in range(len(message_list)):
-                if message_list[element].startswith("https://osu.ppy.sh/users/") or message_list[element].startswith("https://osu.ppy.sh/u/"):
-                    url = message_list[element]
-                    url_list = url.split('/')
-                    user_id = url_list[-1]
-                    new_members[message.author.id][0] = user_id
-                    is_verified = True
-                    await is_osu_user_account_exists(message.author.id,new_members[message.author.id][0])
+            match = re.search("https://osu.ppy.sh/users/", message.content)
+            match2 = re.search("https://osu.ppy.sh/u/", message.content)
+
+            if match or match2:
+                is_verified = True
+                index_url = match.end()
+                user_id = message.content[index_url:]
+                new_members[message.author.id][0] = user_id
+                await is_osu_user_account_exists(message.author.id, new_members[message.author.id][0])
+
             if not is_verified:
                 await message.add_reaction("❓")
 
