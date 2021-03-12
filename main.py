@@ -169,14 +169,19 @@ async def on_message(message:discord.Message):
         if message.channel.id == welcome_id: # On vérifie si le message envoyé est dans le salon welcome
 
             is_verified = False
+
+            # Utilisation de regex pour trouver l'id osu! si il existe une url
             match = re.search("https://osu.ppy.sh/users/", message.content)
-            match2 = re.search("https://osu.ppy.sh/u/", message.content)
+            match2 = re.search("https://osu.ppy.sh/u/", message.content)  # Autre url possible
 
             if match or match2:
+
                 is_verified = True
-                index_url = match.end()
-                user_id = message.content[index_url:]
-                new_members[message.author.id][0] = user_id
+                index_url = match.end()  # Position du dernier caractère du match (le dernier "/" de l'url)
+
+                user_id = message.content[index_url:]  # Récupération de toute la fin de l'url (c-à-d l'id)
+
+                new_members[message.author.id][0] = user_id  # On stocke l'id osu! dans new_members
                 await is_osu_user_account_exists(message.author.id, new_members[message.author.id][0])
 
             if not is_verified:
