@@ -1,3 +1,12 @@
+[12/03/2020] Version 1.1.1 :
+    Arrangement de code:
+        - Utilisation de regex pour rechercher l'url
+
+    Corrections:
+        - Suppression d'un bug qui ajoutait "❓" si l'url osu! était collée à un mot:
+            - Corrige un bug qui indiquait "None" sur l'embed du membre
+
+
 [05/03/2021] Version 1.1 :
     Arrangement de code:
         - Ajout d'une docstring pour chaque fonction/evênement
