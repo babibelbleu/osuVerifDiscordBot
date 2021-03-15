@@ -1,13 +1,22 @@
-[12/03/2020] Version 1.1.1 :
+Version 2021.1503 :
     Arrangement de code:
-        - Utilisation de regex pour rechercher l'url
+        - Docstring plus complète
 
-    Corrections:
-        - Suppression d'un bug qui ajoutait "❓" si l'url osu! était collée à un mot:
-            - Corrige un bug qui indiquait "None" sur l'embed du membre
+        - Le code respecte maintenant les conventions de caractères maximum par ligne
 
+        - L'algorithme de recherche de l'url osu! est remplacé par des regex
+            - Cela rend le code plus lisible et plus fiable
 
-[05/03/2021] Version 1.1 :
+    Correction de bugs:
+        - Correction d'un bug qui provoquait une erreur quand l'utilisateur avait bloqué ses PM
+            - Le bot envoie maintenant un message dans le channel des modérateurs pour expliquer la situation
+            - L'embed envoyé est de couleur orange, pour indiquer une erreur
+
+        - Correction d'un bug qui ajoutait un "❓" si l'url osu! indiquée était collée à un autre mot
+
+        - Correction d'un bug qui mettait "None" à la place du rename du membre accepté
+
+Version 2021.0503 :
     Arrangement de code:
         - Ajout d'une docstring pour chaque fonction/evênement
 
