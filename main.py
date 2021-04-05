@@ -204,6 +204,24 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
 
 
 @bot.event
+async def on_message_edit(before:discord.Message, after:discord.Message):
+    """
+    Evênement qui se déclenche quand un message est modifié.
+    Cela va permettre de vérifier si une personne a modifié son message pour rajouter l'url de vérification
+
+    Parameters
+    ----------
+    before: discord.Message
+        Toutes les informations du message avant qu'il soit modifié
+
+    after: discord.Message
+        Toutes les informations du message après qu'il soit modifié
+
+    """
+    await url_verification(after)
+
+
+@bot.event
 async def on_message(message:discord.Message):
     """
     Evênement qui se déclenche quand un message est envoyé sur le serveur ou en MP avec le bot
@@ -216,36 +234,7 @@ async def on_message(message:discord.Message):
 
     """
     try:
-
-        # On vérifie si le message envoyé est dans le salon welcome
-        if message.channel.id == welcome_id: # On vérifie si le message envoyé est dans le salon welcome
-
-            is_verified = False
-
-            # Méthodes du module re (=regex)
-            # Besoin de faire deux match puisqu'il existe 2 url différentes à identifier
-            match = re.search("https://osu.ppy.sh/users/", message.content)
-            match2 = re.search("https://osu.ppy.sh/u/", message.content)
-
-            # Si il y a "match" pour une des deux recherches (si on a trouvé un lien dans le message)
-            if match or match2:
-
-                is_verified = True  # L'utilisateur a bien mis un bon lien dans son message
-                index_url = match.end()  # Emplacement du caractère de fin du match (dans ce cas il s'agit du '/')
-
-                # On récupère tous les caractères à partir de la position index_url
-                user_id = message.content[index_url:]
-
-                new_members[message.author.id][0] = user_id  # On met l'ID récupéré dans new_members
-                await is_osu_user_account_exists(message.author.id, new_members[message.author.id][0])
-
-            if not is_verified:
-                await message.add_reaction("❓")
-
-            # Va enregistrer l'id du message envoyé pour pouvoir le supprimer quand il sera validé
-            discord_user: discord.User = message.author
-            member_full_name = f"{discord_user.name}#{discord_user.discriminator}"
-            waiting_state_members[member_full_name][3] = message.id
+        await url_verification(message)
 
         author: discord.User = message.author # Pour vérifier si le message provient d'un bot ou d'un utilisateur
         if message.channel.id == mod_newbies_id and author.bot:
@@ -379,5 +368,45 @@ async def moderator_validation(discord_user:discord.User):
             await channel.send(embed=embed)
     except Exception as e:
         print(e.__traceback__.tb_lineno)
+
+
+async def url_verification(message:discord.Message):
+    """
+    Fonction qui vérifie si l'url envoyé dans #welcome est bien un compte osu! valide.
+
+    Parameters
+    ----------
+    message: discord.Message
+        Le message que l'on veut analyser
+
+    """
+    # On vérifie si le message envoyé est dans le salon welcome
+    if message.channel.id == welcome_id:  # On vérifie si le message envoyé est dans le salon welcome
+
+        is_verified = False
+
+        # Méthodes du module re (=regex)
+        # Besoin de faire deux match puisqu'il existe 2 url différentes à identifier
+        match = re.search("https://osu.ppy.sh/users/", message.content)
+        match2 = re.search("https://osu.ppy.sh/u/", message.content)
+
+        # Si il y a "match" pour une des deux recherches (si on a trouvé un lien dans le message)
+        if match or match2:
+            is_verified = True  # L'utilisateur a bien mis un bon lien dans son message
+            index_url = match.end()  # Emplacement du caractère de fin du match (dans ce cas il s'agit du '/')
+
+            # On récupère tous les caractères à partir de la position index_url
+            user_id = message.content[index_url:]
+
+            new_members[message.author.id][0] = user_id  # On met l'ID récupéré dans new_members
+            await is_osu_user_account_exists(message.author.id, new_members[message.author.id][0])
+
+        if not is_verified:
+            await message.add_reaction("❓")
+
+        # Va enregistrer l'id du message envoyé pour pouvoir le supprimer quand il sera validé
+        discord_user: discord.User = message.author
+        member_full_name = f"{discord_user.name}#{discord_user.discriminator}"
+        waiting_state_members[member_full_name][3] = message.id
 
 bot.run(bot_token)
