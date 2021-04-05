@@ -1,3 +1,11 @@
+Version 2021.0504 :
+    Correction de bugs:
+        - Correction d'un bug qui ne prenait pas en compte l'url osu! d'un membre mis après un edit de message
+
+    Arrangement de code:
+        - Création d'une fonction url_verification, qui permet de vérifier si le message entré dans #welcome
+          contient bien un url valide
+
 Version 2021.1503 :
     Arrangement de code:
         - Docstring plus complète
@@ -45,12 +53,14 @@ Version 2021.0503 :
 
         - Ajout de 2 nouvelles commandes à utiliser dans #mod-newbies:
             - !rename <discord_id> <new_nick> (chevrons à ne pas écrire) --> va rename le membre avec new_nick:
-                - Le discord_id permet de récupérer le membre afin de l'éditer, je travaille sur une commande plus facile
+                - Le discord_id permet de récupérer le membre afin de l'éditer,
+                 je travaille sur une commande plus facile
 
-            - !bug <message> (chevrons à ne pas écrire) --> Envoie un message privé au développeur du bot (Babibel#2811) en indiquant qu'il y a un bug
+            - !bug <message> (chevrons à ne pas écrire)
+               --> Envoie un message privé au développeur du bot (Babibel#2811) en indiquant qu'il y a un bug:
                 - <message> permet de décrire la situation au développeur (facultatif mais plus apprecié)
 
-                - Le modérateur pourra directement répondre en faisant un !answer -name -message (traits d'union à écrire):
+                - Le modérateur pourra directement répondre en faisant un !answer -name -message:
                     - -name est l'utilisateur qui va être ping de la réponse
                     - -message est la réponse apportée par le développeur
 
