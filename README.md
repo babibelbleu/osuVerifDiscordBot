@@ -1,4 +1,4 @@
 # osuVerifDiscordBot
-This is a discord bot who renames new server members with his osu!username
+This is a discord bot who renames new members of a server with his osu!username
 
 Bonjour
