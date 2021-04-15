@@ -27,6 +27,7 @@ guild_id = int(os.getenv("UID_guild"))
 welcome_id = int(os.getenv("UID_welcome"))
 mod_newbies_id = int(os.getenv("UID_mod_newbies"))
 general_id = int(os.getenv("UID_general"))
+report_message_id = int(os.getenv("UID_report_message"))
 osu_client = pyosu.OsuApi(os.getenv("osu_token"))
 babibel_id = int(os.getenv("babibel_id"))  # ID du développeur du bot
 ran_ping_id = str(os.getenv("ran_mention_id"))  # le message quand on ping le bot (spécifique)
@@ -277,6 +278,20 @@ async def on_message(message:discord.Message):
                     message_to_send = f"Babibel répond à {nick_to_send} : {message_list[2]}"
                     newbies_channel = bot.get_channel(mod_newbies_id)
                     await newbies_channel.send(message_to_send)
+
+            # Autres commandes (entrées par des membres en DM)
+            if message.content.startswith("!contact"):
+                # Commande : !contact <message>
+
+                # On envoie un message aux modérateurs.
+
+                # On séléctionne le message de l'utilisateur (en retirant le nom de la commande)
+                message_to_send = message.content[9:]
+                report_message_channel = bot.get_channel(report_message_id)
+                member = message.author
+                await report_message_channel.send(f"L'utilisateur {member.name} vous contacte pour la raison suivante :"
+                                                  f"{message_to_send}")
+                await member.send("Votre message a bien été envoyé. Un modérateur vous contactera sous peu.")
 
         # On regarde si Ran est ping (le ping renvoie un message spécial ('<@!bot_id>'), et non pas "@Ran")
         if "@Ran" in message.content or ran_ping_id in message.content:
