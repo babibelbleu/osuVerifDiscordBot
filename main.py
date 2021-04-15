@@ -79,7 +79,8 @@ async def on_member_join(member:discord.Member):
     try:
 
         # Déclaration du message de bienvenue
-        embed = discord.Embed(description="Afin de procéder à la vérification de votre compte, merci de suivre les étapes suivantes:",
+        embed = discord.Embed(description="Afin de procéder à la vérification de votre compte,"
+                                          "merci de suivre les étapes suivantes:",
                               color=discord.Color.dark_teal())
 
         embed.set_author(name=f"Bienvenue sur osu!French {member.name} !")
@@ -90,7 +91,8 @@ async def on_member_join(member:discord.Member):
                         inline=True)
 
         embed.add_field(name="__Indiquer votre profil__",
-                        value="Envoyez le lien de votre profil osu! Il ressemble à ça : `https://osu.ppy.sh/users/123456`",
+                        value="Envoyez le lien de votre profil osu! dans #welcome "
+                              "Il ressemble à ça : `https://osu.ppy.sh/users/123456`",
                         inline=True)
 
         new_members[member.id] = [None] # None  -> L'id osu! de l'utilisateur n'a pas été mis
