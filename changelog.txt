@@ -1,3 +1,15 @@
+Version 2021.1604 :
+    Nouveautés :
+        - L'utilisateur peut envoyer un message aux modérateurs via le DM du bot
+            - Commande : !contact <message> (chevrons non esentiels)
+            Note du développeur : Je pense qu'il est important de créer cette commande, car certains utilisateurs
+            n'aiment pas directement parler à certaines personnes qui peuvent l'aider, et cette commande permet donc à
+            certains de ces utilisateurs d'écrire sans aucune crainte.
+
+    Developpeur :
+        - Ajout d'une nouvelle entrée dans le .env (UID_report_message), qui enregistre l'ID du channel où les
+        messages envoyés via le !contact sont indiqués.
+
 Version 2021.0504 :
     Correction de bugs:
         - Correction d'un bug qui ne prenait pas en compte l'url osu! d'un membre mis après un edit de message
