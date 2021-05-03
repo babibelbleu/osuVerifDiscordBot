@@ -225,6 +225,52 @@ async def on_message_edit(before:discord.Message, after:discord.Message):
 
 
 @bot.event
+async def on_user_update(before:discord.User, after:discord.User):
+    """
+    Evênement qui se déclenche quand un utilisateur update les informations suivantes:
+        -> son avatar
+        -> son username (!= du rename sur un serveur)
+        -> son discriminator (ex : babibel#2811 vers babibel#3811)
+
+    Ici, la fonction est utile pour vérifier quand un membre change son username, cela va permettre de détecter
+    les personnes qui n'ont pas pu être rename car leur pseudo équivalait au pseudo osu! et qui donc par conséquent
+    se sont rename automatiquement sur le serveur
+
+    Objectif : En avertir les modérateurs pour qu'ils puissent faire le nécéssaire
+
+    Parameters
+    ----------
+    before: discord.User
+        Toutes les informations de l'utilisateur AVANT qu'il ait update une information
+
+    after: discord.User
+        Toutes les informations de l'utilisateur APRES qu'il ait update une information
+
+    """
+    # On récupère le Member (qui possède l'attribut 'nick' contrairement à l'User)
+    member: discord.Member = bot.get_guild(guild_id).get_member(after.id)
+
+    # On vérifie que c'est bien le username qui a changé
+    if before.name != after.name:
+
+        # Si le pseudo du membre n'existe pas (= on l'a pas rename)
+        if member.nick is None:
+            member_with_discriminator = f"{after.name}#{after.discriminator}"
+            newbies_channel = bot.get_channel(mod_newbies_id)
+
+            # On prépare le embed qui indique aux modérateurs le problème
+            embed = discord.Embed(description="Un utilisateur a modifié son pseudo alors qu'il n'était pas rename !",
+                                 color=discord.Colour.orange())
+
+            embed.set_footer(text="Merci de le contacter pour le rename !")
+            embed.add_field(name="",
+                            value="Un utilisateur a modifié son pseudo alors qu'il n'était pas rename !")
+            embed.set_author(name=member_with_discriminator)
+
+            await newbies_channel.send(embed=embed)
+
+
+@bot.event
 async def on_message(message:discord.Message):
     """
     Evênement qui se déclenche quand un message est envoyé sur le serveur ou en MP avec le bot
