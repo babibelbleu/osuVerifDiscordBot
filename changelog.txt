@@ -1,6 +1,6 @@
 Version 2021.0305 :
     Nouveauté:
-        - Le bot avertit quand un utilisateur n'a pas été rename et qu'il vient de changer de uid_nick
+        - Le bot avertit quand un utilisateur n'a pas été renommé et qu'il vient de changer de uid_nick
             Les modérateurs seront donc au courant plus facilement et pourront contacter le membre en question
 
 Version 2021.1604 :
