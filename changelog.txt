@@ -1,10 +1,12 @@
+Version 2021.0305 :
+    Nouveauté:
+        - Le bot avertit quand un utilisateur n'a pas été rename et qu'il vient de changer de uid_nick
+            Les modérateurs seront donc au courant plus facilement et pourront contacter le membre en question
+
 Version 2021.1604 :
     Nouveautés :
         - L'utilisateur peut envoyer un message aux modérateurs via le DM du bot
             - Commande : !contact <message> (chevrons non esentiels)
-            Note du développeur : Je pense qu'il est important de créer cette commande, car certains utilisateurs
-            n'aiment pas directement parler à certaines personnes qui peuvent l'aider, et cette commande permet donc à
-            certains de ces utilisateurs d'écrire sans aucune crainte.
 
     Developpeur :
         - Ajout d'une nouvelle entrée dans le .env (UID_report_message), qui enregistre l'ID du channel où les
