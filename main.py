@@ -95,6 +95,11 @@ async def on_member_join(member:discord.Member):
                               "Il ressemble à ça : `https://osu.ppy.sh/users/123456`",
                         inline=True)
 
+        embed.add_field(name="__IMPORTANT__",
+                        value="Merci de ne pas @ les modérateur et autre membre du staff.\n"
+                              "Leur travail reste bénévole, merci de ne pas les déranger !",
+                        inline=True)
+
         new_members[member.id] = [None] # None  -> L'id osu! de l'utilisateur n'a pas été mis
         await member.send(embed=embed)
 

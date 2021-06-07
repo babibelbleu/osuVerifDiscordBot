@@ -1,3 +1,8 @@
+Version 2021.0706 :
+    Nouveautés :
+        - Le message de bienvenue a été modifié : il demande maintenant aux utilisateurs de ne pas ping
+        les membres du staff pour être vérifiés plus vite.
+
 Version 2021.0305 :
     Nouveauté:
         - Le bot avertit quand un utilisateur n'a pas été renommé et qu'il vient de changer de uid_nick
